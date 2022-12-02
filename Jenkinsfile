@@ -7,6 +7,12 @@ pipeline {
 
     stages {
         stage("Build ---------------------------------------------------") {
+            // Limit Branches
+            when {
+                branch 'feature/*'
+                beforeAgent true
+            }
+
             // Docker agent
             agent {
               docker {
@@ -24,6 +30,12 @@ pipeline {
         }
 
         stage("Test Feature ---------------------------------------------------") {
+            // Limit Branches
+            when {
+                branch 'feature/*'
+                beforeAgent true
+            }
+
             agent {
               docker {
                 image 'gradle:7.5.1-jdk17-focal'
@@ -59,6 +71,12 @@ pipeline {
         }
 
         stage("Integrate Feature ---------------------------------------------------") {
+            // Limit Branches
+            when {
+                branch 'feature/*'
+                beforeAgent true
+            }
+
             // hier wieder agent any
             steps {
                 echo "Integrate Feature..."
