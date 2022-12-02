@@ -210,9 +210,6 @@ pipeline {
                 beforeAgent true
             }
 
-            steps {
-                echo "deployment ..."
-            }
 
             // docker image bauen und starten (und archivieren)
 
@@ -220,6 +217,9 @@ pipeline {
             environment {
                 NEXUS_CREDENTIALS = credentials('nexus_credential')
             }
+
+            steps {
+                echo "deployment ..."
 
             unstash 'integration_build'
 
@@ -234,6 +234,9 @@ pipeline {
             sh 'docker push nexus:5000/app:latest'
 
             sh 'docker container run -p 8090:8085 --name testing -d --rm app:latest'
+
+                        }
+
         }
     }
 }
