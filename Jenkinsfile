@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        INTEGRATION_BRANCH = 'integration'
+    }
+
     stages {
         stage("Build ---------------------------------------------------") {
             // Docker agent
@@ -59,15 +63,16 @@ pipeline {
                 echo "Integrate Feature..."
                 sh 'git --version'
                 sh 'git branch -a'
-                sh 'git checkout integration'
+                sh 'git checkout ${INTEGRATION_BRANCH}'
                 sh 'git pull'
-                // no-edit ohne Bearbeitung
+                // no-ff nur wenn ohne probleme mergebar
+                // no-edit nur wenn ohne Bearbeitung
                 // FIX ME richtiger Branche
-                sh 'git merge --no-ff --no-edit remotes/origin/feature/1'
+                sh 'git merge --no-ff --no-edit remotes/origin/${BRANCH_NAME}'
 
                 // pushen
                 withCredentials([gitUsernamePassword(credentialsId: 'github_token', gitToolName: 'Default')]) {
-                    sh 'git push origin integration'
+                    sh 'git push origin ${INTEGRATION_BRANCH}'
                 }
             }
         }
