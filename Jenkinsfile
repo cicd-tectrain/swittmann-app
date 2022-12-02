@@ -221,21 +221,27 @@ pipeline {
             steps {
                 echo "deployment ..."
 
-            unstash 'integration_build'
+                unstash 'integration_build'
 
-            // Image bauen -> Dockerfile
-            sh 'docker build -t nexus:5000/app:latest -f docker/integration/Dockerfile .'
+                // Image bauen -> Dockerfile
+                sh 'docker build -t nexus:5000/app:latest -f docker/integration/Dockerfile .'
 
-            // Image taggen
+                // Image taggen
 
-            sh 'echo ${NEXUS_CREDENTIALS_PSW} | docker login -u ${NEXUS_CREDENTIALS_USR} --password-stdin nexus:5000'
+                sh 'echo ${NEXUS_CREDENTIALS_PSW} | docker login -u ${NEXUS_CREDENTIALS_USR} --password-stdin nexus:5000'
 
-            // Image pushen
-            sh 'docker push nexus:5000/app:latest'
+                // Image pushen
+                sh 'docker push nexus:5000/app:latest'
 
-            sh 'docker container run -p 8090:8085 --name testing -d --rm app:latest'
+                sh 'docker container run -p 8090:8085 --name testing -d --rm app:latest'
 
-                        }
+            }
+
+            post {
+                always {
+                    sh 'docker logout nexus:5000'
+                }
+            }
 
         }
     }
