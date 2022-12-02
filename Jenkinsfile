@@ -216,20 +216,24 @@ pipeline {
 
             // docker image bauen und starten (und archivieren)
 
-
-
             // Env fuer nexus credentials
+            environment {
+                NEXUS_CREDENTIALS = credentials('nexus_credential')
+            }
+
+            unstash 'integration_build'
 
             // Image bauen -> Dockerfile
-            //sh 'docker build -t XXX .'
+            sh 'docker build -t nexus:5000/app:latest -f docker/integration/Dockerfile .'
 
             // Image taggen
 
-            //sh 'docker login nexus:8081'
+            sh 'echo ${NEXUS_CREDENTIALS_PSW} | docker login -u ${NEXUS_CREDENTIALS_USR} --password-stdin nexus:5000'
 
             // Image pushen
+            sh 'docker push nexus:5000/app:latest'
 
-
+            sh 'docker container run -p 8090:8085 --name testing -d --rm app:latest'
         }
     }
 }
