@@ -28,6 +28,10 @@ pipeline {
             steps {
                 echo "Test Feature ..."
                 sh 'gradle test'
+                // JUNIT xml reports
+                sh 'ls -la build/test-results/test'
+                // html reports
+                sh 'ls -la build/reports/tests'
             }
         }
 
