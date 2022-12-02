@@ -120,10 +120,19 @@ pipeline {
                 // ohne test
                 sh 'gradle clean build -x test'
                 sh 'ls -la build/libs'
+
+                // stashen if stage was successful
+                post {
+                    success {
+                        // id und includemaske
+                        stash name: 'integration_build', includes: 'build/'
+                    }
+                }
+
             }
         }
 
-        stage("Test Feature integration ---------------------------------------------------") {
+        stage("Test integration ---------------------------------------------------") {
             // Limit Branches
             when {
                 branch "${INTEGRATION_BRANCH}"
@@ -164,6 +173,63 @@ pipeline {
             }
         }
 
+        // artefacts in nexus reinladen
+        stage("Publish Artifacts") {
+            // Limit Branches
+            when {
+                branch "${INTEGRATION_BRANCH}"
+                beforeAgent true
+            }
 
+            steps {
+                // unstash
+                unstash 'integration_build'
+
+                // Publish artifact in nexus
+                // werte aus build.gradle uebernehmen
+                nexusArtifactUploader artifacts: [
+                [
+                    artifactId: at.tectrain.app,
+                    classifier: '',
+                    file: 'build/libs/app-0.0.1-SNAPSHOT.jar',
+                    type: 'jar'
+                ]],
+                credentialsId: 'nexus_credentials',
+                groupId: '',
+                nexusUrl: 'nexus:8081/repository/maven-snapshots',
+                protocol: 'http',
+                repository: '',
+                version: '0.0.1-SNAPSHOT'
+            }
+        }
+
+
+        stage('Deploy integration branch') {
+            when {
+                branch "${INTEGRATION_BRANCH}"
+                beforeAgent true
+            }
+
+            steps {
+                echo "deployment ..."
+            }
+
+            // docker image bauen und starten (und archivieren)
+
+
+
+            // Env fuer nexus credentials
+
+            // Image bauen -> Dockerfile
+            //sh 'docker build -t XXX .'
+
+            // Image taggen
+
+            //sh 'docker login nexus:8081'
+
+            // Image pushen
+
+
+        }
     }
 }
