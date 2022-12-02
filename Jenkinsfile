@@ -16,6 +16,7 @@ pipeline {
 
             steps {
                 echo "Build Feature ..."
+                echo "Branchname = ${BRANCH_NAME}"
                 // ohne test
                 sh 'gradle clean build -x test'
                 sh 'ls -la build/libs'
