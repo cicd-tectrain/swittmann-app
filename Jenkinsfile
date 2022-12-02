@@ -54,8 +54,21 @@ pipeline {
         }
 
         stage("Integrate Feature ---------------------------------------------------") {
+            // hier wieder agent any
             steps {
                 echo "Integrate Feature..."
+                sh 'git --version'
+                sh 'git branch -a'
+                sh 'git checkout integration'
+                sh 'git pull'
+                // no-edit ohne Bearbeitung
+                // FIX ME richtiger Branche
+                sh 'git merge --no-ff --no-edit remotes/origin/feature/1'
+
+                // pushen
+                withCredentials([gitUsernamePassword(credentialsId: 'github_token', gitToolName: 'Default')]) {
+                    sh 'git push origin integration'
+                }
             }
         }
     }
