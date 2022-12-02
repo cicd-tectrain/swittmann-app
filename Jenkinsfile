@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage("Build") {
+        stage("Build ---------------------------------------------------") {
             // Docker agent
             agent {
               docker {
@@ -18,7 +18,7 @@ pipeline {
             }
         }
 
-        stage("Test Feature") {
+        stage("Test Feature ---------------------------------------------------") {
             agent {
               docker {
                 image 'gradle:7.5.1-jdk17-focal'
@@ -33,9 +33,17 @@ pipeline {
                 // html reports
                 sh 'ls -la build/reports/tests'
             }
+            // nach dem step eine post action
+            post {
+                always {
+                    // junits results archivieren
+                    junit 'build/test-results/test/*.xml'
+
+                }
+            }
         }
 
-        stage("Integrate Feature") {
+        stage("Integrate Feature ---------------------------------------------------") {
             steps {
                 echo "Integrate Feature..."
             }
